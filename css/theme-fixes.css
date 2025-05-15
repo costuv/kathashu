@@ -1,0 +1,180 @@
+/**
+ * Theme Fixes for KathaShu
+ * This ensures all containers and layout elements properly follow light/dark mode
+ */
+
+/* Container fixes */
+.container {
+  background-color: transparent;
+}
+
+/* Footer fixes */
+footer.bg-gray-100 {
+  background-color: #f7fafc;
+  border-top: 1px solid #edf2f7;
+}
+
+.dark footer.bg-gray-100,
+.dark footer.bg-gray-800 {
+  background-color: #1f2937 !important;
+  border-top-color: #4b5563 !important;
+  color: #e2e8f0 !important;
+}
+
+.dark footer p {
+  color: #9ca3af !important;
+}
+
+/* Card fixes */
+.bg-gray-50 {
+  background-color: #f9fafb;
+}
+
+.dark .bg-gray-50 {
+  background-color: #2d3748 !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: #1f2937 !important;
+}
+
+.dark .bg-gray-800 {
+  background-color: #1f2937 !important;
+}
+
+/* Override Tailwind's styles with higher specificity */
+.dark .dark\:bg-gray-800 {
+  background-color: #1f2937 !important;
+}
+
+.dark .dark\:bg-gray-900 {
+  background-color: #1a202c !important;
+}
+
+.dark .dark\:border-gray-700 {
+  border-color: #4b5563 !important;
+}
+
+/* Ensure all text follows theme */
+.dark .dark\:text-gray-200 {
+  color: #e2e8f0 !important;
+}
+
+.dark .dark\:text-gray-300 {
+  color: #d1d5db !important;
+}
+
+.dark .dark\:text-gray-400 {
+  color: #9ca3af !important;
+}
+
+/* Sidebar fixes for dark mode */
+.dark .dark\:bg-gray-700 {
+  background-color: #374151 !important;
+}
+
+/* Make sidebar stick properly */
+.sticky {
+  position: sticky;
+  top: 1rem;
+  z-index: 10;
+}
+
+/* Fix sidebar cards in dark mode */
+.dark .dark\:bg-gray-700 a {
+  color: #e2e8f0;
+}
+
+.dark .dark\:bg-gray-600 {
+  background-color: #4b5563 !important;
+}
+
+/* Ensure sidebar has proper padding on mobile */
+@media (max-width: 1024px) {
+  .lg\:w-1\/3 {
+    margin-top: 2rem;
+  }
+}
+
+/* Danger zone styling */
+.dark .bg-red-50 {
+  background-color: #1f2937 !important; /* Match the dark mode card background */
+}
+
+.dark .border-red-200 {
+  border-color: #4b5563 !important; /* Match the dark mode border color */
+}
+
+.dark .dark\:border-red-800\/50 {
+  border-color: rgba(153, 27, 27, 0.5) !important;
+}
+
+.dark .text-red-600, 
+.dark .dark\:text-red-400 {
+  color: #f87171 !important;
+}
+
+/* Ensure button styles are consistent in dark mode */
+.dark .dark\:bg-gray-700 {
+  background-color: #374151 !important;
+}
+
+.dark .dark\:hover\:bg-gray-600:hover {
+  background-color: #4b5563 !important;
+}
+
+.dark .dark\:text-gray-200 {
+  color: #e5e7eb !important;
+}
+
+/* Theme fixes for KathaShu */
+
+/* Fix for dark mode toggle */
+.dark {
+  color-scheme: dark;
+}
+
+/* Danger zone specific fixes */
+.dark .text-red-400 {
+  color: #f87171 !important;
+}
+
+/* Delete button should stay red in both themes */
+.dark .bg-red-600 {
+  background-color: #dc2626 !important;
+}
+
+.dark .hover\:bg-red-700:hover {
+  background-color: #b91c1c !important;
+}
+
+/* Ensure modal background works with theme */
+.dark .bg-black.bg-opacity-50 {
+  background-color: rgba(0, 0, 0, 0.75) !important;
+}
+
+/* Other theme fixes */
+.dark .bg-gray-50,
+.dark .bg-white {
+  background-color: #1f2937 !important;
+}
+
+.dark .text-gray-800 {
+  color: #f3f4f6 !important;
+}
+
+.dark .text-gray-700 {
+  color: #e5e7eb !important;
+}
+
+.dark .text-gray-600 {
+  color: #d1d5db !important;
+}
+
+.dark .bg-gray-800 {
+  background-color: #1f2937 !important;
+}
+
+.dark .border-gray-700 {
+  border-color: #4b5563 !important;
+}

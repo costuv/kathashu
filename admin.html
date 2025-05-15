@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Kathashu</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-200 flex flex-col min-h-screen">
+    <header class="border-b border-gray-200 dark:border-gray-700">
+        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold">Kathashu</a>
+            
+            <!-- Mobile menu button (hamburger) -->
+            <button id="mobile-menu-button" class="md:hidden text-gray-600 dark:text-gray-300 focus:outline-none" aria-label="Toggle menu">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            
+            <!-- Desktop navigation - hidden on mobile -->
+            <div id="desktop-nav" class="hidden md:flex items-center space-x-6">
+                <a href="index.html" class="font-medium hover:text-gray-600 dark:hover:text-gray-300">Home</a>
+                <a href="about.html" class="font-medium hover:text-gray-600 dark:hover:text-gray-300">About</a>
+                <a href="create-story.html" id="create-story-link" class="hidden font-medium hover:text-gray-600 dark:hover:text-gray-300">Create Story</a>
+                <div id="user-menu" class="hidden flex items-center space-x-4">
+                    <!-- Direct link to profile -->
+                    <a href="profile.html" class="flex items-center hover:text-gray-600 dark:hover:text-gray-300">
+                        <span id="username-display" class="mr-2"></span>
+                        <i class="fas fa-user-circle text-xl"></i>
+                    </a>
+                    <!-- Admin link - displayed conditionally and highlighted -->
+                    <a href="admin.html" id="admin-link" class="hidden text-blue-600 dark:text-blue-400">
+                        <i class="fas fa-cog text-lg"></i>
+                    </a>
+                </div>
+                <button id="theme-toggle" class="text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded focus:outline-none" aria-label="Toggle dark mode">
+                    <!-- Icon will be inserted by JavaScript -->
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Mobile menu panel - hidden by default -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <div class="container mx-auto px-4 py-3 space-y-3">
+                <a href="index.html" class="block font-medium py-2 hover:text-gray-600 dark:hover:text-gray-300">Home</a>
+                <a href="about.html" class="block font-medium py-2 hover:text-gray-600 dark:hover:text-gray-300">About</a>
+                <a href="create-story.html" id="mobile-create-story-link" class="hidden block font-medium py-2 hover:text-gray-600 dark:hover:text-gray-300">Create Story</a>
+                <!-- Mobile user menu - hidden by default -->
+                <div id="mobile-user-menu" class="hidden py-2">
+                    <a href="profile.html" class="block font-medium py-2 hover:text-gray-600 dark:hover:text-gray-300">
+                        <i class="fas fa-user-circle mr-2"></i>
+                        <span id="mobile-username-display"></span>
+                    </a>
+                    <a href="admin.html" id="mobile-admin-link" class="hidden block font-medium py-2 text-blue-600 dark:text-blue-400">
+                        <i class="fas fa-cog mr-2"></i>Admin Panel
+                    </a>
+                </div>
+                <!-- Mobile theme toggle -->
+                <div class="py-2">
+                    <button id="mobile-theme-toggle" class="flex items-center font-medium py-2 hover:text-gray-600 dark:hover:text-gray-300" aria-label="Toggle dark mode">
+                        <i class="fas fa-moon mr-2"></i>
+                        <span id="mobile-theme-text">Dark Mode</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 flex-grow">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-3xl font-bold mb-8">Admin Dashboard</h1>
+            
+            <div id="admin-error-message" class="hidden mb-4 p-3 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded"></div>
+            
+            <!-- Users Management Section -->
+            <div class="mb-12">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold">Users</h2>
+                    <button id="add-admin-btn" class="px-4 py-2 bg-gray-800 dark:bg-gray-100 text-white dark:text-gray-900 rounded hover:bg-gray-700 dark:hover:bg-gray-200">
+                        <i class="fas fa-plus mr-2"></i>Add Admin
+                    </button>
+                </div>
+                
+                <!-- Add Admin Form -->
+                <div id="add-admin-form" class="hidden mb-6 bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                    <h3 class="text-lg font-semibold mb-4">Add New Admin</h3>
+                    <form id="add-admin-form-element">
+                        <div class="flex">
+                            <input type="email" id="admin-email" placeholder="User Email" class="flex-1 rounded-l px-4 py-2 border border-gray-300 dark:border-gray-600 focus:outline-none dark:bg-gray-700 dark:text-gray-200">
+                            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-r">Add</button>
+                        </div>
+                    </form>
+                    <button id="cancel-admin-add" class="text-sm text-gray-600 dark:text-gray-400 mt-2 hover:underline">Cancel</button>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Name</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Username</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Email</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Role</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <!-- User rows will be loaded here -->
+                            <tr>
+                                <td colspan="5" class="px-6 py-4 text-center">Loading users...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Stories Management Section -->
+            <div class="bg-gray-50 dark:bg-gray-800 shadow rounded-lg overflow-hidden mb-8">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold mb-6">Manage Stories</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead class="bg-gray-100 dark:bg-gray-700">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Title</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Author</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Date</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stories-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                <!-- Story data will be loaded here -->
+                                <tr>
+                                    <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">Loading stories...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-center space-x-6 mb-4">
+                <a href="https://tiktok.com/@asmita.aryal2" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-xl" aria-label="TikTok">
+                    <i class="fab fa-tiktok"></i>
+                </a>
+                <a href="https://facebook.com/smartreadersnepal" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-xl" aria-label="Facebook">
+                    <i class="fab fa-facebook"></i>
+                </a>
+                <a href="https://youtube.com/@kathashu1" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-xl" aria-label="YouTube">
+                    <i class="fab fa-youtube"></i>
+                </a>
+                <a href="https://instagram.com/kathashu1" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-xl" aria-label="Instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+            </div>
+            <p class="text-center text-gray-600 dark:text-gray-400">© 2025 Kathashu. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/admin.js"></script>
+    <script type="module" src="js/theme.js"></script>
+    <script type="module" src="js/mobile-menu.js"></script>
+</body>
+</html>

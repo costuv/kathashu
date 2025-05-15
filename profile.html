@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Kathashu</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/theme-fixes.css">
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-200 flex flex-col min-h-screen">
+    <header class="border-b border-gray-200 dark:border-gray-700">
+        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold">Kathashu</a>
+            
+            <!-- Mobile menu button (hamburger) -->
+            <button id="mobile-menu-button" class="md:hidden text-gray-600 dark:text-gray-300 focus:outline-none" aria-label="Toggle menu">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            
+            <!-- Desktop navigation - hidden on mobile -->
+            <div id="desktop-nav" class="hidden md:flex items-center space-x-6">
+                <a href="index.html" class="font-medium hover:text-gray-600 dark:hover:text-gray-300">Home</a>
+                <a href="about.html" class="font-medium hover:text-gray-600 dark:hover:text-gray-300">About</a>
+                <div id="auth-links">
+                    <a href="login.html" class="font-medium hover:text-gray-600 dark:hover:text-gray-300">Login</a>
+                    <a href="signup.html" class="ml-4 px-4 py-2 bg-gray-800 dark:bg-gray-100 text-white dark:text-gray-900 rounded hover:bg-gray-700 dark:hover:bg-gray-200">Sign Up</a>
+                </div>
+                <div id="user-menu" class="hidden flex items-center space-x-4">
+                    <!-- Direct link to profile - highlighted as active -->
+                    <a href="profile.html" class="flex items-center text-blue-600 dark:text-blue-400">
+                        <span id="username-display" class="mr-2"></span>
+                        <i class="fas fa-user-circle text-xl"></i>
+                    </a>
+                    <!-- Admin link - displayed conditionally -->
+                    <a href="admin.html" id="admin-link" class="hidden hover:text-gray-600 dark:hover:text-gray-300">
+                        <i class="fas fa-cog text-lg"></i>
+                    </a>
+                </div>
+                <button id="theme-toggle" class="text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded focus:outline-none" aria-label="Toggle dark mode">
+                    <!-- Icon will be inserted by JavaScript -->
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Mobile menu panel - hidden by default -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <div class="container mx-auto px-4 py-3 space-y-3">
+                <a href="index.html" class="block font-medium py-2 hover:text-gray-600 dark:hover:text-gray-300">Home</a>
+                <a href="about.html" class="block font-medium py-2 hover:text-gray-600 dark:hover:text-gray-300">About</a>
+                <!-- Mobile auth links -->
+                <div id="mobile-auth-links" class="py-2">
+                    <a href="login.html" class="block font-medium py-2 hover:text-gray-600 dark:hover:text-gray-300">Login</a>
+                    <a href="signup.html" class="block font-medium py-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">Sign Up</a>
+                </div>
+                <!-- Mobile user menu - hidden by default -->
+                <div id="mobile-user-menu" class="hidden py-2">
+                    <a href="profile.html" class="block font-medium py-2 text-blue-600 dark:text-blue-400">
+                        <i class="fas fa-user-circle mr-2"></i>
+                        <span id="mobile-username-display"></span>
+                    </a>
+                    <a href="admin.html" id="mobile-admin-link" class="hidden block font-medium py-2 hover:text-gray-600 dark:hover:text-gray-300">
+                        <i class="fas fa-cog mr-2"></i>Admin Panel
+                    </a>
+                </div>
+                <!-- Mobile theme toggle -->
+                <div class="py-2">
+                    <button id="mobile-theme-toggle" class="flex items-center font-medium py-2 hover:text-gray-600 dark:hover:text-gray-300" aria-label="Toggle dark mode">
+                        <i class="fas fa-moon mr-2"></i>
+                        <span id="mobile-theme-text">Dark Mode</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-3xl font-bold mb-8">Profile</h1>
+            
+            <div class="bg-gray-50 dark:bg-gray-800 shadow rounded-lg overflow-hidden mb-8">
+                <div class="p-6">
+                    <div class="flex flex-col md:flex-row items-center md:items-start">
+                        <div class="w-32 h-32 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 text-5xl mb-4 md:mb-0 md:mr-6">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="flex-1 text-center md:text-left">
+                            <h2 id="profile-name" class="text-2xl font-bold mb-1">Loading...</h2>
+                            <p id="profile-username" class="text-gray-600 dark:text-gray-400 mb-4">Loading...</p>
+                            <p id="profile-email" class="text-gray-600 dark:text-gray-400 mb-6">Loading...</p>
+                            <div class="flex flex-wrap gap-3">
+                                <!-- Edit Profile button -->
+                                <button id="edit-profile-btn" class="px-4 py-2 bg-gray-800 dark:bg-gray-100 text-white dark:text-gray-900 rounded hover:bg-gray-700 dark:hover:bg-gray-200">
+                                    <i class="fas fa-edit mr-2"></i>Edit Profile
+                                </button>
+                                <!-- Logout button added next to Edit Profile -->
+                                <button id="profile-logout-btn" class="px-4 py-2 bg-gray-600 dark:bg-gray-300 text-white dark:text-gray-900 rounded hover:bg-gray-500 dark:hover:bg-gray-400">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="edit-profile-form" class="hidden bg-gray-50 dark:bg-gray-800 shadow rounded-lg overflow-hidden mb-8 p-6">
+                <h2 class="text-2xl font-bold mb-6">Edit Profile</h2>
+                <div id="edit-error-message" class="hidden mb-4 p-3 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded"></div>
+                <form id="profile-form">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="edit-fullName">
+                            Full Name
+                        </label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="edit-fullName" type="text" placeholder="Full Name">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="edit-username">
+                            Username
+                        </label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="edit-username" type="text" placeholder="Username">
+                    </div>
+                    <div class="flex justify-end space-x-4">
+                        <button type="button" id="cancel-edit" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-gray-800 dark:bg-gray-100 text-white dark:text-gray-900 rounded hover:bg-gray-700 dark:hover:bg-gray-200">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold mb-6">My Stories</h2>
+                <div id="posting-status" class="mt-4 mb-6 hidden p-3 bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-200 rounded">
+                    You don't have permission to create stories yet. Please contact an administrator to request posting privileges.
+                </div>
+                <div id="user-stories" class="grid grid-cols-1 gap-6">
+                    <!-- User stories will be loaded here -->
+                </div>
+                <p id="no-stories" class="text-gray-600 dark:text-gray-400 mt-4">You haven't published any stories yet.</p>
+                <div class="mt-6">
+                    <a href="create-story.html" id="create-story-btn" class="hidden inline-block px-6 py-3 bg-gray-800 dark:bg-gray-100 text-white dark:text-gray-900 rounded hover:bg-gray-700 dark:hover:bg-gray-200">
+                        <i class="fas fa-plus mr-2"></i>Create New Story
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Danger Zone Section -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold mb-4 text-red-600 dark:text-red-400">Danger Zone</h2>
+                <div class="bg-red-50 dark:bg-gray-800 border border-red-200 dark:border-gray-700 rounded-lg p-6">
+                    <div class="flex flex-col">
+                        <!-- Delete Account Option - Only keeping this in the danger zone -->
+                        <div class="flex items-center justify-between py-3">
+                            <div>
+                                <h3 class="font-semibold text-gray-800 dark:text-gray-200">Delete Account</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Permanently delete your account and all associated data</p>
+                            </div>
+                            <button id="delete-account-btn" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded focus:outline-none transition-colors">
+                                <i class="fas fa-trash-alt mr-2"></i>Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Delete Account Modal -->
+    <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full">
+            <h3 class="text-xl font-bold mb-4">Delete Account</h3>
+            <p class="mb-6 text-gray-700 dark:text-gray-300">This action cannot be undone. All your data, including stories and comments, will be permanently deleted.</p>
+            <div id="delete-error-message" class="hidden mb-4 p-3 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded"></div>
+            <form id="delete-account-form">
+                <div class="mb-4">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="delete-password">
+                        Enter your password to confirm
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="delete-password" type="password" placeholder="Password" required>
+                </div>
+                <div class="flex justify-end space-x-4">
+                    <button type="button" id="cancel-delete" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                        Confirm Delete
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-center space-x-6 mb-4">
+                <a href="https://tiktok.com/@asmita.aryal2" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-xl" aria-label="TikTok">
+                    <i class="fab fa-tiktok"></i>
+                </a>
+                <a href="https://facebook.com/smartreadersnepal" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-xl" aria-label="Facebook">
+                    <i class="fab fa-facebook"></i>
+                </a>
+                <a href="https://youtube.com/@kathashu1" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-xl" aria-label="YouTube">
+                    <i class="fab fa-youtube"></i>
+                </a>
+                <a href="https://instagram.com/kathashu1" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-xl" aria-label="Instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+            </div>
+            <p class="text-center text-gray-600 dark:text-gray-400">© 2025 Kathashu. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/profile.js"></script>
+    <script type="module" src="js/theme.js"></script>
+    <script type="module" src="js/mobile-menu.js"></script>
+</body>
+</html>

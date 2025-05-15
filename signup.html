@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Kathashu</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-200 flex flex-col min-h-screen">
+    <header class="border-b border-gray-200 dark:border-gray-700">
+        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold">Kathashu</a>
+            
+            <!-- Mobile menu button (hamburger) -->
+            <button id="mobile-menu-button" class="md:hidden text-gray-600 dark:text-gray-300 focus:outline-none" aria-label="Toggle menu">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            
+            <!-- Desktop navigation - hidden on mobile -->
+            <div id="desktop-nav" class="hidden md:flex items-center space-x-6">
+                <a href="index.html" class="font-medium hover:text-gray-600 dark:hover:text-gray-300">Home</a>
+                <a href="about.html" class="font-medium hover:text-gray-600 dark:hover:text-gray-300">About</a>
+                <div id="auth-links">
+                    <a href="login.html" class="font-medium hover:text-gray-600 dark:hover:text-gray-300">Login</a>
+                    <a href="signup.html" class="ml-4 px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600">Sign Up</a>
+                </div>
+                <button id="theme-toggle" class="text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded focus:outline-none" aria-label="Toggle dark mode">
+                    <!-- Icon will be inserted by JavaScript -->
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Mobile menu panel - hidden by default -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <div class="container mx-auto px-4 py-3 space-y-3">
+                <a href="index.html" class="block font-medium py-2 hover:text-gray-600 dark:hover:text-gray-300">Home</a>
+                <a href="about.html" class="block font-medium py-2 hover:text-gray-600 dark:hover:text-gray-300">About</a>
+                <!-- Mobile auth links -->
+                <div id="mobile-auth-links" class="py-2">
+                    <a href="login.html" class="block font-medium py-2 hover:text-gray-600 dark:hover:text-gray-300">Login</a>
+                    <a href="signup.html" class="block font-medium py-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-bold">Sign Up</a>
+                </div>
+                <!-- Mobile theme toggle -->
+                <div class="py-2">
+                    <button id="mobile-theme-toggle" class="flex items-center font-medium py-2 hover:text-gray-600 dark:hover:text-gray-300" aria-label="Toggle dark mode">
+                        <i class="fas fa-moon mr-2"></i>
+                        <span id="mobile-theme-text">Dark Mode</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-12 flex justify-center flex-grow">
+        <div class="w-full max-w-md">
+            <h1 class="text-3xl font-bold mb-8 text-center">Create an Account</h1>
+            <div id="error-message" class="hidden mb-4 p-3 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded"></div>
+            <form id="signup-form" class="bg-gray-50 dark:bg-gray-800 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                <div class="mb-4">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="fullName">
+                        Full Name
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="fullName" type="text" placeholder="Full Name" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="username">
+                        Username
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" type="text" placeholder="Username" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="email">
+                        Email
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" type="email" placeholder="Email" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="password">
+                        Password
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="password" type="password" placeholder="Password" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="confirmPassword">
+                        Confirm Password
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="confirmPassword" type="password" placeholder="Confirm Password" required>
+                </div>
+                <div class="flex items-center justify-between">
+                    <button class="bg-gray-800 dark:bg-gray-100 hover:bg-gray-700 dark:hover:bg-gray-200 text-white dark:text-gray-900 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full" type="submit">
+                        Sign Up
+                    </button>
+                </div>
+            </form>
+            <p class="text-center text-gray-600 dark:text-gray-400">
+                Already have an account? <a href="login.html" class="font-bold text-gray-800 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400">Log in</a>
+            </p>
+        </div>
+    </main>
+
+    <footer class="bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-center space-x-6 mb-4">
+                <a href="https://tiktok.com/@asmita.aryal2" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-xl" aria-label="TikTok">
+                    <i class="fab fa-tiktok"></i>
+                </a>
+                <a href="https://facebook.com/smartreadersnepal" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-xl" aria-label="Facebook">
+                    <i class="fab fa-facebook"></i>
+                </a>
+                <a href="https://youtube.com/@kathashu1" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-xl" aria-label="YouTube">
+                    <i class="fab fa-youtube"></i>
+                </a>
+                <a href="https://instagram.com/kathashu1" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-xl" aria-label="Instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+            </div>
+            <p class="text-center text-gray-600 dark:text-gray-400">© 2025 Kathashu. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/theme.js"></script>
+    <script type="module" src="js/mobile-menu.js"></script>
+</body>
+</html>
