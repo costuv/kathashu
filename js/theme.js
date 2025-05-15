@@ -31,6 +31,9 @@ const initThemeToggle = () => {
         
         // Update toggle icon
         updateToggleIcon(theme);
+        
+        // Dispatch theme change event for dynamic elements
+        document.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme } }));
     };
     
     // Update icon based on current theme

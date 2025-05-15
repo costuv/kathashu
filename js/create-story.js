@@ -46,6 +46,10 @@ const initStoryCreation = () => {
                 permissionMessage.classList.remove('hidden');
                 permissionMessage.textContent = 'You do not have permission to create stories. Please contact an administrator.';
             }
+            // Redirect to homepage after showing message briefly
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 3000);
             return;
         }
         

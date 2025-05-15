@@ -69,9 +69,18 @@ const initAdminDashboard = () => {
                     const tr = document.createElement('tr');
                     tr.className = 'hover:bg-gray-50 dark:hover:bg-gray-700';
                     
+                    const adminBadge = userData.isAdmin ? 
+                        `<span class="admin-badge relative" title="Admin">
+                            <i class="fas fa-check-circle"></i>
+                            <span class="tooltip-text">Admin</span>
+                         </span>` : '';
+                    
                     tr.innerHTML = `
                         <td class="px-6 py-4 whitespace-nowrap">${userData.fullName || 'N/A'}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${userData.username || 'N/A'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            ${userData.username || 'N/A'}
+                            ${adminBadge}
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap">${userData.email || 'N/A'}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             ${userData.isAdmin 
@@ -327,6 +336,12 @@ const initAdminDashboard = () => {
                 }
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <a 
+                    href="edit-story.html?id=${storyId}" 
+                    class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3"
+                >
+                    <i class="fas fa-edit mr-1"></i> Edit
+                </a>
                 <button class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-200 delete-story-btn" data-story-id="${storyId}" data-db-type="${story._rtdb ? 'rtdb' : 'firestore'}">
                     Delete
                 </button>

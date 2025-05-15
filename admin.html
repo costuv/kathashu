@@ -95,23 +95,25 @@
                 </div>
                 
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead class="bg-gray-50 dark:bg-gray-700">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Name</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Username</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Email</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Role</th>
-                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="users-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                            <!-- User rows will be loaded here -->
-                            <tr>
-                                <td colspan="5" class="px-6 py-4 text-center">Loading users...</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Name</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Username</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Email</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Role</th>
+                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                <!-- User rows will be loaded here -->
+                                <tr>
+                                    <td colspan="5" class="px-6 py-4 text-center">Loading users...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             
@@ -143,6 +145,55 @@
         </div>
     </main>
 
+    <!-- Story Edit Modal - Hidden by default -->
+    <div id="edit-story-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-3xl max-h-screen overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 p-4">
+                <h3 class="text-xl font-bold">Edit Story</h3>
+                <button id="close-edit-modal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="edit-story-form" class="p-4">
+                <input type="hidden" id="edit-story-id">
+                
+                <div class="mb-4">
+                    <label for="edit-story-title" class="block text-sm font-medium mb-1">Title</label>
+                    <input type="text" id="edit-story-title" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-gray-200">
+                </div>
+                
+                <div class="mb-4">
+                    <label for="edit-story-description" class="block text-sm font-medium mb-1">Summary</label>
+                    <textarea id="edit-story-description" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-gray-200"></textarea>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="edit-story-content" class="block text-sm font-medium mb-1">Content</label>
+                    <textarea id="edit-story-content" rows="10" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-gray-200"></textarea>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="edit-story-status" class="block text-sm font-medium mb-1">Status</label>
+                    <select id="edit-story-status" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-gray-200">
+                        <option value="published">Published</option>
+                        <option value="draft">Draft</option>
+                        <option value="hidden">Hidden</option>
+                    </select>
+                </div>
+                
+                <div class="flex justify-end mt-6 space-x-3">
+                    <button type="button" id="cancel-edit" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <footer class="bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-8">
         <div class="container mx-auto px-4">
             <div class="flex justify-center space-x-6 mb-4">
@@ -166,6 +217,7 @@
     <script type="module" src="js/firebase-config.js"></script>
     <script type="module" src="js/auth.js"></script>
     <script type="module" src="js/admin.js"></script>
+    <script type="module" src="js/story-editor.js"></script>
     <script type="module" src="js/theme.js"></script>
     <script type="module" src="js/mobile-menu.js"></script>
 </body>

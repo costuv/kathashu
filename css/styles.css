@@ -451,3 +451,123 @@ img {
 .dark .admin-badge {
   color: #60a5fa;
 }
+
+.dark .admin-badge .tooltip-text {
+  background-color: #4a5568;
+  color: #e2e8f0;
+}
+
+/* Share button animation */
+.share-animation {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Share button hover effects */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.hover\:text-blue-500:hover {
+  color: #3b82f6;
+}
+
+.dark .dark\:hover\:text-blue-400:hover {
+  color: #60a5fa;
+}
+
+/* Tooltip for share button */
+.share-tooltip {
+  position: relative;
+}
+
+.share-tooltip:hover::after {
+  content: "Share this story";
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+
+.dark .share-tooltip:hover::after {
+  background-color: rgba(75, 85, 99, 0.9);
+}
+
+/* Share popup styles */
+.share-popup-content {
+  transform: scale(0.95);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.share-popup-active {
+  transform: scale(1) !important;
+  opacity: 1 !important;
+}
+
+.share-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  transition: transform 0.2s ease;
+}
+
+.share-icon:hover {
+  transform: translateY(-3px);
+}
+
+.share-icon i {
+  font-size: 1rem;
+}
+
+/* Copy button animation */
+@keyframes copySuccess {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+#copy-share-url.copied {
+  animation: copySuccess 0.3s ease;
+  background-color: #48bb78; /* Success green */
+}
+
+#copy-share-url.copied:hover {
+  background-color: #38a169; /* Darker green */
+}
+
+/* Ensure popup is above all other elements */
+#share-popup {
+  z-index: 9999;
+}
+
+/* Ensure the input text is properly visible in dark mode */
+.dark #share-url-input {
+  color: #e2e8f0;
+  background-color: #374151;
+  border-color: #4b5563;
+}
+
+/* Fix for safari on the copy button */
+#copy-share-url {
+  white-space: nowrap;
+}

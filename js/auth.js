@@ -26,8 +26,22 @@ const checkAuthState = () => {
     const userMenu = document.getElementById('user-menu');
     const usernameDisplay = document.getElementById('username-display');
     const adminLink = document.getElementById('admin-link');
-    const createStoryBtn = document.getElementById('create-story-btn');
-    const homeCreateStoryBtn = document.getElementById('home-create-story-btn');
+    
+    // Get all possible create story buttons and links
+    const createStoryElements = [
+        document.getElementById('create-story-btn'),
+        document.getElementById('home-create-story-btn'),
+        document.getElementById('create-story-link'),
+        document.getElementById('mobile-create-story-link')
+    ];
+    
+    // Hide all create story elements by default
+    createStoryElements.forEach(element => {
+        if (element) {
+            element.classList.add('hidden');
+            element.style.display = 'none'; // Add display:none for extra safety
+        }
+    });
     
     onAuthStateChanged(auth, async (user) => {
         if (user) {
@@ -46,29 +60,49 @@ const checkAuthState = () => {
                         // Check if user is admin
                         if (userData.isAdmin && adminLink) {
                             adminLink.classList.remove('hidden');
+                        } else if (adminLink) {
+                            adminLink.classList.add('hidden');
                         }
                         
                         // Check if user can post stories (both on profile and homepage)
-                        const canPost = userData.canPost || userData.isAdmin;
+                        const canPost = userData.canPost === true || userData.isAdmin === true;
+                        console.log("User can post:", canPost, "canPost:", userData.canPost, "isAdmin:", userData.isAdmin);
                         
-                        if (createStoryBtn && canPost) {
-                            createStoryBtn.classList.remove('hidden');
-                        } else if (createStoryBtn) {
-                            createStoryBtn.classList.add('hidden');
-                        }
-                        
-                        // For homepage create story button
-                        if (homeCreateStoryBtn && canPost) {
-                            homeCreateStoryBtn.classList.remove('hidden');
-                        } else if (homeCreateStoryBtn) {
-                            homeCreateStoryBtn.classList.add('hidden');
-                        }
+                        // Only show create story elements if user can post
+                        createStoryElements.forEach(element => {
+                            if (element) {
+                                if (canPost) {
+                                    element.classList.remove('hidden');
+                                    element.style.removeProperty('display');
+                                } else {
+                                    element.classList.add('hidden');
+                                    element.style.display = 'none';
+                                }
+                            }
+                        });
                         
                         // Dispatch custom event for other components to update
                         document.dispatchEvent(new CustomEvent('authStateChanged', { 
-                            detail: { loggedIn: true, userData: userData }
+                            detail: { loggedIn: true, userData: userData, canPost: canPost }
                         }));
+                    } else {
+                        // Hide all create story elements if no user data
+                        createStoryElements.forEach(element => {
+                            if (element) {
+                                element.classList.add('hidden');
+                                element.style.display = 'none';
+                            }
+                        });
                     }
+                }, (error) => {
+                    console.error("Error fetching user data:", error);
+                    // Hide all create story elements on error
+                    createStoryElements.forEach(element => {
+                        if (element) {
+                            element.classList.add('hidden');
+                            element.style.display = 'none';
+                        }
+                    });
                 });
             }
         } else {
@@ -76,13 +110,17 @@ const checkAuthState = () => {
             if (authLinks) authLinks.classList.remove('hidden');
             if (userMenu) userMenu.classList.add('hidden');
             
-            // Hide create story buttons
-            if (createStoryBtn) createStoryBtn.classList.add('hidden');
-            if (homeCreateStoryBtn) homeCreateStoryBtn.classList.add('hidden');
+            // Hide all create story elements for signed-out users
+            createStoryElements.forEach(element => {
+                if (element) {
+                    element.classList.add('hidden');
+                    element.style.display = 'none';
+                }
+            });
             
             // Dispatch custom event for other components to update
             document.dispatchEvent(new CustomEvent('authStateChanged', { 
-                detail: { loggedIn: false }
+                detail: { loggedIn: false, canPost: false }
             }));
             
             // Redirect to login if trying to access protected pages

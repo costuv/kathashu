@@ -132,7 +132,7 @@ const initStoryPage = () => {
         storyContainer.classList.remove('hidden');
         
         // Set story metadata
-        document.title = `${story.title} - KathaShu`;
+        document.title = `${story.title} - Kathashu`;
         storyTitle.textContent = story.title || 'Untitled Story';
         
         // Format and set story date
@@ -172,9 +172,26 @@ const initStoryPage = () => {
             if (!img.alt) img.alt = 'Story image';
         });
         
-        // Set like/view counts
+        // Set like/view counts with added share button
         likeCount.textContent = story.likes || 0;
         viewCount.textContent = story.views || 0;
+        
+        // Add share button next to view count
+        const viewCountContainer = viewCount.parentElement;
+        if (viewCountContainer) {
+            // Create share button
+            const shareButton = document.createElement('span');
+            shareButton.className = 'ml-4 cursor-pointer text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400';
+            shareButton.innerHTML = '<i class="fas fa-share-alt mr-1"></i> Share';
+            
+            // Add share functionality
+            shareButton.addEventListener('click', () => {
+                showSharePopup(story.title);
+            });
+            
+            // Append to the container
+            viewCountContainer.appendChild(shareButton);
+        }
     };
     
     // Improve content formatting with better structure
@@ -1272,34 +1289,320 @@ const renderCommentAuthor = async (authorId, authorElement) => {
                     badge.className = 'admin-badge relative';
                     badge.innerHTML = `<i class="fas fa-check-circle"></i><span class="tooltip-text">Admin</span>`;
                     authorElement.appendChild(badge);
+                    return;
                 }
             }
-        } catch (e) {
-            // Only try users collection if above fails and we're authenticated
-            if (auth.currentUser) {
-                try {
+            
+            // Direct check in users collection as last resort
+            const userRef = ref(rtdb, `users/${authorId}`);
+            const userSnapshot = await get(userRef);
+            
+            if (userSnapshot.exists() && userSnapshot.val().isAdmin) {
+                // Cache for future
+                if (!window.adminCache) window.adminCache = {};
+                window.adminCache[authorId] = true;
+                
+                // Add the admin badge
+                const badge = document.createElement('span');
+                badge.className = 'admin-badge relative';
+                badge.innerHTML = `<i class="fas fa-check-circle"></i><span class="tooltip-text">Admin</span>`;
+                authorElement.appendChild(badge);
+            }
+        } catch (error) {
+            console.log("Error checking admin status:", error);
+            // Still try one more time with the users collection
+            try {
+                if (auth.currentUser) {
                     const userRef = ref(rtdb, `users/${authorId}`);
                     const userSnapshot = await get(userRef);
                     
                     if (userSnapshot.exists() && userSnapshot.val().isAdmin) {
-                        // Cache for future
-                        if (!window.adminCache) window.adminCache = {};
-                        window.adminCache[authorId] = true;
-                        
+                        // Add the badge as last attempt
                         const badge = document.createElement('span');
                         badge.className = 'admin-badge relative';
                         badge.innerHTML = `<i class="fas fa-check-circle"></i><span class="tooltip-text">Admin</span>`;
                         authorElement.appendChild(badge);
                     }
-                } catch (err) {
-                    // Silently fail - no admin badge if we can't verify
                 }
+            } catch (err) {
+                // Silent fail at this point
             }
         }
     } catch (error) {
         console.error("Error rendering author:", error);
         authorElement.textContent = `User ${authorId.substring(0, 6)}`;
     }
+};
+
+// Function to share the story
+const shareStory = (title) => {
+    // Get the current URL
+    const shareUrl = window.location.href;
+    const shareTitle = title || document.title;
+    
+    // Check if Web Share API is supported
+    if (navigator.share) {
+        navigator.share({
+            title: shareTitle,
+            url: shareUrl
+        })
+        .then(() => console.log('Shared successfully'))
+        .catch((error) => {
+            console.log('Error sharing:', error);
+            fallbackShare(shareUrl);
+        });
+    } else {
+        // Fallback for browsers that don't support the Web Share API
+        fallbackShare(shareUrl);
+    }
+};
+
+// Fallback sharing method - copy to clipboard
+const fallbackShare = (url) => {
+    // Create a temporary input element
+    const tempInput = document.createElement('input');
+    document.body.appendChild(tempInput);
+    
+    // Set its value to the URL and select it
+    tempInput.value = url;
+    tempInput.select();
+    tempInput.setSelectionRange(0, 99999); // For mobile devices
+    
+    // Copy the URL to clipboard
+    document.execCommand('copy');
+    
+    // Remove the temporary element
+    document.body.removeChild(tempInput);
+    
+    // Provide feedback to the user
+    alert('Link copied to clipboard! You can now share it manually.');
+};
+
+// Function to show YouTube-style share popup
+const showSharePopup = (title) => {
+    // Create share popup if it doesn't exist
+    if (!document.getElementById('share-popup')) {
+        createSharePopup();
+    }
+    
+    // Update share URL
+    const shareUrl = window.location.href;
+    const shareTitle = title || document.title;
+    document.getElementById('share-url-input').value = shareUrl;
+    
+    // Update social media share links
+    updateSocialShareLinks(shareUrl, shareTitle);
+    
+    // Show popup
+    const popup = document.getElementById('share-popup');
+    popup.classList.remove('hidden');
+    
+    // Apply current theme to popup (explicitly check and apply theme)
+    applyThemeToPopup();
+    
+    // Add animation
+    setTimeout(() => {
+        popup.querySelector('.share-popup-content').classList.add('share-popup-active');
+    }, 10);
+    
+    // Focus on the URL input for easy copying
+    setTimeout(() => {
+        document.getElementById('share-url-input').select();
+    }, 300);
+};
+
+// Apply current theme to popup elements
+const applyThemeToPopup = () => {
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    const popup = document.getElementById('share-popup');
+    if (!popup) return;
+    
+    // Ensure popup content follows dark mode
+    const content = popup.querySelector('.share-popup-content');
+    if (isDarkMode) {
+        content.classList.add('dark-theme');
+        content.style.backgroundColor = '#1f2937'; // dark:bg-gray-800
+        content.style.color = '#e2e8f0'; // dark:text-gray-200
+    } else {
+        content.classList.remove('dark-theme');
+        content.style.backgroundColor = '#ffffff'; // bg-white
+        content.style.color = '#1f2937'; // text-gray-800
+    }
+    
+    // Style the label
+    const label = popup.querySelector('label');
+    if (label) {
+        if (isDarkMode) {
+            label.style.color = '#d1d5db'; // dark:text-gray-300
+        } else {
+            label.style.color = '#374151'; // text-gray-700
+        }
+    }
+    
+    // Style the input
+    const input = popup.querySelector('#share-url-input');
+    if (input) {
+        if (isDarkMode) {
+            input.style.backgroundColor = '#374151'; // dark:bg-gray-700
+            input.style.borderColor = '#4b5563'; // dark:border-gray-600
+            input.style.color = '#e2e8f0'; // dark:text-gray-200
+        } else {
+            input.style.backgroundColor = '#ffffff';
+            input.style.borderColor = '#d1d5db'; // border-gray-300
+            input.style.color = '#1f2937'; // text-gray-800
+        }
+    }
+    
+    // Style the close button
+    const closeBtn = popup.querySelector('#close-share-popup');
+    if (closeBtn) {
+        if (isDarkMode) {
+            closeBtn.style.color = '#9ca3af'; // dark:text-gray-400
+        } else {
+            closeBtn.style.color = '#6b7280'; // text-gray-500
+        }
+    }
+    
+    // Style the feedback message
+    const feedback = popup.querySelector('#copy-feedback');
+    if (feedback) {
+        if (isDarkMode) {
+            feedback.style.color = '#4ade80'; // dark:text-green-400
+        } else {
+            feedback.style.color = '#16a34a'; // text-green-600
+        }
+    }
+};
+
+// Create share popup elements
+const createSharePopup = () => {
+    const popup = document.createElement('div');
+    popup.id = 'share-popup';
+    popup.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden';
+    
+    // HTML for the popup content
+    popup.innerHTML = `
+        <div class="share-popup-content bg-white rounded-lg shadow-xl w-full max-w-md mx-4 transform scale-95 opacity-0 transition-all duration-300">
+            <div class="flex justify-between items-center border-b border-gray-200 p-4">
+                <h3 class="text-lg font-bold">Share this story</h3>
+                <button id="close-share-popup" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="p-4">
+                <!-- Social Media Sharing -->
+                <div class="flex justify-center space-x-4 mb-6">
+                    <a href="#" id="share-facebook" class="share-icon bg-blue-600 text-white rounded-full p-3 hover:bg-blue-700" title="Share on Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" id="share-twitter" class="share-icon bg-blue-400 text-white rounded-full p-3 hover:bg-blue-500" title="Share on Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" id="share-linkedin" class="share-icon bg-blue-700 text-white rounded-full p-3 hover:bg-blue-800" title="Share on LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="#" id="share-whatsapp" class="share-icon bg-green-500 text-white rounded-full p-3 hover:bg-green-600" title="Share on WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a href="#" id="share-email" class="share-icon bg-gray-600 text-white rounded-full p-3 hover:bg-gray-700" title="Share via Email">
+                        <i class="fas fa-envelope"></i>
+                    </a>
+                </div>
+                
+                <!-- URL Copy Field -->
+                <div class="mb-2">
+                    <label for="share-url-input" class="block text-sm font-medium text-gray-700 mb-1">Link</label>
+                    <div class="flex">
+                        <input type="text" id="share-url-input" class="flex-1 border border-gray-300 rounded-l px-3 py-2" readonly>
+                        <button id="copy-share-url" class="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700">
+                            Copy
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Copy Feedback -->
+                <div id="copy-feedback" class="text-green-600 text-sm hidden mt-2">
+                    <i class="fas fa-check mr-1"></i> Link copied to clipboard!
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add to document
+    document.body.appendChild(popup);
+    
+    // Setup event listeners
+    document.getElementById('close-share-popup').addEventListener('click', hideSharePopup);
+    document.getElementById('copy-share-url').addEventListener('click', copyShareUrl);
+    
+    // Close when clicking outside
+    popup.addEventListener('click', (e) => {
+        if (e.target === popup) {
+            hideSharePopup();
+        }
+    });
+    
+    // Close on ESC key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !popup.classList.contains('hidden')) {
+            hideSharePopup();
+        }
+    });
+    
+    // Listen for theme changes
+    document.addEventListener('themeChanged', applyThemeToPopup);
+};
+
+// Hide share popup
+const hideSharePopup = () => {
+    const popup = document.getElementById('share-popup');
+    if (!popup) return;
+    
+    // Animate out
+    popup.querySelector('.share-popup-content').classList.remove('share-popup-active');
+    
+    // Hide after animation
+    setTimeout(() => {
+        popup.classList.add('hidden');
+        // Reset copy feedback
+        document.getElementById('copy-feedback').classList.add('hidden');
+    }, 300);
+};
+
+// Copy share URL to clipboard
+const copyShareUrl = () => {
+    const urlInput = document.getElementById('share-url-input');
+    urlInput.select();
+    document.execCommand('copy');
+    
+    // Show feedback
+    const feedback = document.getElementById('copy-feedback');
+    feedback.classList.remove('hidden');
+    
+    // Hide feedback after 2 seconds
+    setTimeout(() => {
+        feedback.classList.add('hidden');
+    }, 2000);
+};
+
+// Update social media share links
+const updateSocialShareLinks = (url, title) => {
+    const encodedUrl = encodeURIComponent(url);
+    const encodedTitle = encodeURIComponent(title);
+    
+    // Update each social media link
+    document.getElementById('share-facebook').href = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+    document.getElementById('share-twitter').href = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`;
+    document.getElementById('share-linkedin').href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
+    document.getElementById('share-whatsapp').href = `https://api.whatsapp.com/send?text=${encodedTitle}%20${encodedUrl}`;
+    document.getElementById('share-email').href = `mailto:?subject=${encodedTitle}&body=Check%20out%20this%20story:%20${encodedUrl}`;
+    
+    // Open in new tabs
+    document.querySelectorAll('.share-icon').forEach(icon => {
+        icon.setAttribute('target', '_blank');
+        icon.setAttribute('rel', 'noopener noreferrer');
+    });
 };
 
 // Initialize story page when DOM content is loaded

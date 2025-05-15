@@ -41,6 +41,15 @@ const initProfile = () => {
                 
                 profileName.textContent = userData.fullName || 'No Name';
                 profileUsername.textContent = `@${userData.username}` || '@username';
+                
+                // Add admin badge if user is admin
+                if (userData.isAdmin) {
+                    const badge = document.createElement('span');
+                    badge.className = 'admin-badge relative ml-1';
+                    badge.innerHTML = `<i class="fas fa-check-circle"></i><span class="tooltip-text">Admin</span>`;
+                    profileUsername.appendChild(badge);
+                }
+                
                 profileEmail.textContent = userData.email || 'email@example.com';
                 
                 // Pre-fill edit form if it exists
