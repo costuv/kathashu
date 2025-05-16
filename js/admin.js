@@ -66,43 +66,7 @@ const initAdminDashboard = () => {
                 // Display each user
                 const users = snapshot.val();
                 Object.entries(users).forEach(([userId, userData]) => {
-                    const tr = document.createElement('tr');
-                    tr.className = 'hover:bg-gray-50 dark:hover:bg-gray-700';
-                    
-                    const adminBadge = userData.isAdmin ? 
-                        `<span class="admin-badge relative" title="Admin">
-                            <i class="fas fa-check-circle"></i>
-                            <span class="tooltip-text">Admin</span>
-                         </span>` : '';
-                    
-                    tr.innerHTML = `
-                        <td class="px-6 py-4 whitespace-nowrap">${userData.fullName || 'N/A'}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            ${userData.username || 'N/A'}
-                            ${adminBadge}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">${userData.email || 'N/A'}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            ${userData.isAdmin 
-                                ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100">Admin</span>' 
-                                : userData.canPost
-                                    ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100">Author</span>'
-                                    : '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100">User</span>'
-                            }
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            ${!userData.isAdmin ? `
-                                <button class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-200 mr-3 toggle-role-btn" data-user-id="${userId}" data-role="admin">
-                                    Make Admin
-                                </button>
-                            ` : ''}
-                            <button class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-200 mr-3 toggle-permission-btn" data-user-id="${userId}" data-can-post="${userData.canPost ? 'true' : 'false'}">
-                                ${userData.canPost ? 'Remove Posting' : 'Allow Posting'}
-                            </button>
-                        </td>
-                    `;
-                    
-                    usersTableBody.appendChild(tr);
+                    renderUserRow(userId, userData, usersTableBody);
                 });
                 
                 // Add event listeners for role toggles
@@ -113,6 +77,11 @@ const initAdminDashboard = () => {
                 // Add event listeners for permission toggles
                 document.querySelectorAll('.toggle-permission-btn').forEach(btn => {
                     btn.addEventListener('click', handlePermissionToggle);
+                });
+                
+                // Add event listeners for delete user buttons
+                document.querySelectorAll('.delete-user-btn').forEach(btn => {
+                    btn.addEventListener('click', handleUserDelete);
                 });
             }).catch(error => {
                 console.error("Error loading users:", error);
@@ -477,6 +446,122 @@ const initAdminDashboard = () => {
             });
         }
     };
+};
+
+// Render a user row with added delete button
+const renderUserRow = (userId, userData, container) => {
+    const tr = document.createElement('tr');
+    tr.className = 'hover:bg-gray-50 dark:hover:bg-gray-700';
+    
+    const adminBadge = userData.isAdmin ? 
+        `<span class="admin-badge relative" title="Admin">
+            <i class="fas fa-check-circle"></i>
+            <span class="tooltip-text">Admin</span>
+         </span>` : '';
+    
+    tr.innerHTML = `
+        <td class="px-6 py-4 whitespace-nowrap">${userData.fullName || 'N/A'}</td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            ${userData.username || 'N/A'}
+            ${adminBadge}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">${userData.email || 'N/A'}</td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            ${userData.isAdmin 
+                ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100">Admin</span>' 
+                : userData.canPost
+                    ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100">Author</span>'
+                    : '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100">User</span>'
+            }
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            ${!userData.isAdmin ? `
+                <button class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-200 mr-3 toggle-role-btn" data-user-id="${userId}" data-role="admin">
+                    Make Admin
+                </button>
+            ` : ''}
+            <button class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-200 mr-3 toggle-permission-btn" data-user-id="${userId}" data-can-post="${userData.canPost ? 'true' : 'false'}">
+                ${userData.canPost ? 'Remove Posting' : 'Allow Posting'}
+            </button>
+            <button class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-200 delete-user-btn" data-user-id="${userId}" data-username="${userData.username || ''}">
+                <i class="fas fa-trash-alt"></i> Delete
+            </button>
+        </td>
+    `;
+    
+    container.appendChild(tr);
+};
+
+// Handle deleting a user
+const handleUserDelete = async (e) => {
+    try {
+        const userId = e.target.getAttribute('data-user-id') || e.target.closest('.delete-user-btn').getAttribute('data-user-id');
+        const username = e.target.getAttribute('data-username') || e.target.closest('.delete-user-btn').getAttribute('data-username');
+        
+        // Make sure we don't allow admins to be deleted for safety
+        const userRef = ref(rtdb, `users/${userId}`);
+        const userSnapshot = await get(userRef);
+        
+        if (userSnapshot.exists() && userSnapshot.val().isAdmin) {
+            alert('Admin users cannot be deleted. Remove admin privileges first.');
+            return;
+        }
+        
+        // Confirm deletion
+        if (!confirm(`Are you sure you want to delete user ${username || userId}? This action cannot be undone and will remove all their data.`)) {
+            return;
+        }
+        
+        // First, get user data to clean up related records
+        if (userSnapshot.exists()) {
+            const userData = userSnapshot.val();
+            
+            // Prepare batch updates to remove user data
+            const updates = {};
+            
+            // Remove user from users collection
+            updates[`users/${userId}`] = null;
+            
+            // Remove username from usernames index
+            if (userData.username) {
+                updates[`usernames/${userData.username}`] = null;
+            }
+            
+            // Apply all updates to remove user data
+            await update(ref(rtdb), updates);
+            
+            // Show success message
+            const adminErrorMsg = document.getElementById('admin-error-message');
+            if (adminErrorMsg) {
+                adminErrorMsg.textContent = `User ${username || userId} has been deleted.`;
+                adminErrorMsg.classList.remove('hidden', 'bg-red-100', 'dark:bg-red-900', 'text-red-700', 'dark:text-red-200');
+                adminErrorMsg.classList.add('bg-green-100', 'dark:bg-green-900', 'text-green-700', 'dark:text-green-200');
+                
+                // Hide message after a few seconds
+                setTimeout(() => {
+                    adminErrorMsg.classList.add('hidden');
+                }, 3000);
+            }
+            
+            // Remove row from table
+            const row = e.target.closest('tr');
+            if (row) {
+                row.remove();
+            }
+            
+            // Reload user list to reflect changes
+            loadUsers();
+        } else {
+            throw new Error('User not found');
+        }
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        const adminErrorMsg = document.getElementById('admin-error-message');
+        if (adminErrorMsg) {
+            adminErrorMsg.textContent = `Error deleting user: ${error.message}`;
+            adminErrorMsg.classList.remove('hidden');
+        }
+    }
 };
 
 // Run initialization when DOM content is loaded

@@ -399,7 +399,7 @@ const initProfile = () => {
         e.preventDefault();
         
         const fullName = document.getElementById('edit-fullName').value;
-        const username = document.getElementById('edit-username').value;
+        const username = document.getElementById('edit-username').value.trim().toLowerCase(); // Normalize username
         const editErrorMessage = document.getElementById('edit-error-message');
         
         // Reset error message
@@ -416,6 +416,15 @@ const initProfile = () => {
             return;
         }
         
+        // Username validation
+        if (!/^[a-z0-9_]{3,20}$/.test(username)) {
+            if (editErrorMessage) {
+                editErrorMessage.textContent = 'Username must be 3-20 characters and can only contain lowercase letters, numbers and underscores';
+                editErrorMessage.classList.remove('hidden');
+            }
+            return;
+        }
+        
         try {
             const user = auth.currentUser;
             if (!user) throw new Error('You must be logged in to update your profile');
@@ -426,8 +435,9 @@ const initProfile = () => {
             
             if (userSnapshot.exists()) {
                 const userData = userSnapshot.val();
+                const currentUsername = userData.username.toLowerCase(); // Normalize for comparison
                 
-                if (userData.username !== username) {
+                if (currentUsername !== username) {
                     // Check if the new username already exists
                     const usernameCheckRef = ref(rtdb, 'usernames');
                     const usernameSnapshot = await get(usernameCheckRef);
@@ -436,7 +446,7 @@ const initProfile = () => {
                         const usernames = usernameSnapshot.val();
                         if (usernames[username] && usernames[username] !== user.uid) {
                             if (editErrorMessage) {
-                                editErrorMessage.textContent = 'Username already exists';
+                                editErrorMessage.textContent = 'Username already exists. Please choose another one.';
                                 editErrorMessage.classList.remove('hidden');
                             }
                             return;

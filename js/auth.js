@@ -138,25 +138,92 @@ const checkAuthState = () => {
 const handleSignup = () => {
     const form = document.getElementById('signup-form');
     const errorMessage = document.getElementById('error-message');
+    const usernameInput = document.getElementById('username');
     
     if (form) {
+        // Add real-time username validation
+        if (usernameInput) {
+            usernameInput.addEventListener('blur', async () => {
+                const username = usernameInput.value.trim().toLowerCase();
+                if (username.length < 3) return; // Don't check too short usernames
+                
+                // Reset username field styling
+                usernameInput.classList.remove('border-red-500', 'border-green-500');
+                
+                // Clear any existing username error
+                const existingError = document.getElementById('username-error');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                try {
+                    console.log("Checking username:", username);
+                    
+                    // Check if username exists in the database
+                    const usernameCheckRef = ref(rtdb, 'usernames');
+                    const usernameSnapshot = await get(usernameCheckRef);
+                    
+                    if (usernameSnapshot.exists()) {
+                        // Convert all keys to lowercase for case-insensitive comparison
+                        const usernames = usernameSnapshot.val();
+                        const usernameExists = Object.keys(usernames).some(
+                            existingName => existingName.toLowerCase() === username.toLowerCase()
+                        );
+                        
+                        console.log("Username exists:", usernameExists, "Usernames in DB:", Object.keys(usernames));
+                        
+                        if (usernameExists) {
+                            // Username is taken - show error immediately
+                            usernameInput.classList.add('border-red-500');
+                            
+                            // Create username-specific error message
+                            const usernameError = document.createElement('p');
+                            usernameError.id = 'username-error';
+                            usernameError.className = 'text-red-600 text-sm mt-1';
+                            usernameError.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i>Username is taken.';
+                            usernameInput.parentNode.appendChild(usernameError);
+                        } else {
+                            // Username is available - show success
+                            usernameInput.classList.add('border-green-500');
+                        }
+                    } else {
+                        // No usernames in database, so this one is available
+                        usernameInput.classList.add('border-green-500');
+                    }
+                } catch (error) {
+                    console.error("Error checking username:", error);
+                    // Don't show any validation indicators if there's an error
+                }
+            });
+        }
+        
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const fullName = document.getElementById('fullName').value;
-            const username = document.getElementById('username').value;
+            const username = usernameInput.value.trim().toLowerCase(); // Normalize username
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             
-            // Reset error message
+            // Reset error message and styling
             errorMessage.textContent = '';
             errorMessage.classList.add('hidden');
+            errorMessage.classList.remove('bg-red-100', 'border', 'border-red-400', 'text-red-700', 'px-4', 'py-3', 'rounded', 'relative');
+            usernameInput.classList.remove('border-red-500');
             
             // Form validation
             if (!fullName || !username || !email || !password || !confirmPassword) {
                 errorMessage.textContent = 'All fields are required';
                 errorMessage.classList.remove('hidden');
+                return;
+            }
+            
+            // Username validation
+            if (!/^[a-z0-9_]{3,20}$/.test(username)) {
+                errorMessage.textContent = 'Username must be 3-20 characters and can only contain lowercase letters, numbers and underscores';
+                errorMessage.classList.remove('hidden');
+                usernameInput.classList.add('border-red-500');
                 return;
             }
             
@@ -173,26 +240,42 @@ const handleSignup = () => {
             }
             
             try {
+                // Check if username already exists BEFORE creating auth user
+                const usernameCheckRef = ref(rtdb, 'usernames');
+                const usernameSnapshot = await get(usernameCheckRef);
+                
+                if (usernameSnapshot.exists()) {
+                    const usernames = usernameSnapshot.val();
+                    // Case insensitive check by normalizing to lowercase
+                    if (usernames[username]) {
+                        // Highlight the username field with red border
+                        usernameInput.classList.add('border-red-500');
+                        
+                        // Display prominent error message
+                        errorMessage.innerHTML = '<i class="fas fa-exclamation-circle text-red-500 mr-2"></i><strong>Username already taken!</strong> Please choose a different username.';
+                        errorMessage.classList.remove('hidden');
+                        errorMessage.classList.add('bg-red-100', 'border', 'border-red-400', 'text-red-700', 'px-4', 'py-3', 'rounded', 'relative');
+                        
+                        // Focus back on the username field
+                        usernameInput.focus();
+                        return;
+                    }
+                }
+                
                 // Create user in Firebase Auth first
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
                 
                 try {
-                    // Check if username already exists
-                    const usernameCheckRef = ref(rtdb, 'usernames');
-                    const usernameSnapshot = await get(usernameCheckRef);
-                    
-                    if (usernameSnapshot.exists()) {
-                        const usernames = usernameSnapshot.val();
-                        if (usernames[username]) {
-                            // If username exists but we've already created the auth user, 
-                            // delete the auth user to prevent orphaned accounts
-                            await deleteUser(user);
-                            
-                            errorMessage.textContent = 'Username already exists';
-                            errorMessage.classList.remove('hidden');
-                            return;
-                        }
+                    // Double-check username availability (in case of race condition)
+                    const latestSnapshot = await get(usernameCheckRef);
+                    if (latestSnapshot.exists() && latestSnapshot.val()[username]) {
+                        // Username was taken in the milliseconds between our checks
+                        await deleteUser(user);
+                        
+                        errorMessage.textContent = 'Username was just taken. Please choose another one.';
+                        errorMessage.classList.remove('hidden');
+                        return;
                     }
                     
                     // Store additional user data in Realtime Database
